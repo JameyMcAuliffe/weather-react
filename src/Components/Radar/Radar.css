@@ -1,0 +1,13 @@
+.radar-div {
+	margin: auto;
+	width: 90%;
+	height: 300px;
+	border: rgba(43, 46, 51) solid 5px;
+	margin-top: 50px;
+	margin-bottom: 50px;
+}
+
+/*.radar-background-div {
+	background-color: darkgray;
+	/*padding: 10px;
+}*/

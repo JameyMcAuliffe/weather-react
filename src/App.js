@@ -1,10 +1,15 @@
 import React from 'react';
+
+import Dashboard from './Components/Dashboard/Dashboard';
+
 import './App.css';
 
+
 function App() {
+
   return (
     <div className="App">
-      <h1>Weather</h1>
+      <Dashboard />
     </div>
   );
 }
