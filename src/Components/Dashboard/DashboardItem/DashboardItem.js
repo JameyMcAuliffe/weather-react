@@ -64,7 +64,7 @@ const DashBoardItem = ({zip}) => {
 	useEffect(() => {
 		axios.get(apiUrl)
 			.then(({data}) => {
-			  console.log(data);
+			  //console.log(data);
 				let currentTemp = convertTemp(data.main.temp);
 				let highTemp = convertTemp(data.main.temp_max);
 				let lowTemp = convertTemp(data.main.temp_min);
@@ -106,7 +106,7 @@ const DashBoardItem = ({zip}) => {
 			// eslint-disable-next-line
 	}, [])
 
-	console.log(weatherObj);
+	//console.log(weatherObj);
 
 	const {location, temperature, description, wind, humidity, time} = weatherObj;
 

@@ -11,9 +11,6 @@ class Radar extends Component {
   	const apiKey = process.env.REACT_APP_API_KEY;
   	const lon = this.props.coord.lon;
   	const lat = this.props.coord.lat;
-
-  	console.log(lon);
-  	console.log(lat);
   	
   	let mapMode = this.props.day !== true ? 'night' : 'day';
   	
