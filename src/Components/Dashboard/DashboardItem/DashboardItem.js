@@ -4,7 +4,7 @@ import axios from 'axios';
 import Radar from '../../Radar/Radar';
 import './DashboardItem.css';
 
-const DashBoardItem = ({zip}) => {	
+const DashBoardItem = ({zip, getCondition}) => {	
 
 	const defaultWeatherObj = {
 		description: '- -',
@@ -74,7 +74,8 @@ const DashBoardItem = ({zip}) => {
 				let sunset = convertUnixToTime(data.sys.sunset);
 
 				setWeatherObj({
-					description: data.weather[0].main,
+					description: data.weather[0].description,
+					id: data.weather[0].id,
 					temperature: {
 						current: currentTemp,
 						high: highTemp,
@@ -106,20 +107,29 @@ const DashBoardItem = ({zip}) => {
 			// eslint-disable-next-line
 	}, [])
 
-	//console.log(weatherObj);
+	useEffect(() => {
+		if(dataFetched) {
+			getCondition({
+				id: weatherObj.id,
+				day: weatherObj.time.day
+			});
+		}
+	}, [weatherObj.id, weatherObj.time.day, dataFetched, getCondition]);
+
+	// console.log(weatherObj);
 
 	const {location, temperature, description, wind, humidity, time} = weatherObj;
 
 	return (	
 		<div>
-			<div className="details-div">
+			<div className="details-div rounded">
 				<h1 className="text-white">{location}</h1>
 				<h1 className="text-white">{temperature.current}° F</h1>
-				<h3 className="text-white">{description}</h3>
+				<h3 className="text-white text-capitalize">{description}</h3>
 				<h3 className="text-white">Wind: {wind.direction} {wind.speed}mph</h3>
 				<h3 className="text-white">Humidity: {humidity}%</h3>
 			</div>
-			<div className="details-div row justify-content-around">
+			<div className="details-div row justify-content-around rounded">
 				<div>
 					<h5 className="text-white"><u>High</u></h5>
 					<h5 className="text-white">{temperature.high}</h5>
