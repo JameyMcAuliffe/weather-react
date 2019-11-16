@@ -2,14 +2,14 @@ import React from 'react';
 
 import DashboardItem from './DashboardItem/DashboardItem';
 
-const Dashboard = () => {
+const Dashboard = ({getCondition}) => {
 
 	//const [cookiesArray, setCookiesArray] = useState([]);
 	const zip = '28701';
 
 	return (
 		<div>
-			<DashboardItem zip={zip}/>
+			<DashboardItem zip={zip} getCondition={getCondition}/>
 		</div>
 	);
 }
