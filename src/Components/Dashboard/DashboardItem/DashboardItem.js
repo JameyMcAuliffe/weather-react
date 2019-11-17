@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 import Radar from '../../Radar/Radar';
+import Icon from './Icon';
 import './DashboardItem.css';
 
 const DashBoardItem = ({zip, getCondition}) => {	
@@ -30,6 +31,7 @@ const DashBoardItem = ({zip, getCondition}) => {
 
 	const apiKey = process.env.REACT_APP_API_KEY;
 	const apiUrl = `https://api.openweathermap.org/data/2.5/weather?zip=${zip}&appid=${apiKey}`;
+	const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?zip=${zip}&appid=${apiKey}`;
 
 	let convertTemp = (k) => {
 		return ((k - 273.15) * 9/5 + 32).toFixed(0);
@@ -74,8 +76,9 @@ const DashBoardItem = ({zip, getCondition}) => {
 				let sunset = convertUnixToTime(data.sys.sunset);
 
 				setWeatherObj({
-					description: data.weather[0].description,
+					description: data.weather[0].main,
 					id: data.weather[0].id,
+					icon: data.weather[0].icon,
 					temperature: {
 						current: currentTemp,
 						high: highTemp,
@@ -108,6 +111,13 @@ const DashBoardItem = ({zip, getCondition}) => {
 	}, [])
 
 	useEffect(() => {
+		axios.get(forecastUrl)
+			.then(({data}) => {
+				//console.log(data);
+			})
+	}, [forecastUrl]);
+
+	useEffect(() => {
 		if(dataFetched) {
 			getCondition({
 				id: weatherObj.id,
@@ -119,13 +129,14 @@ const DashBoardItem = ({zip, getCondition}) => {
 	// console.log(weatherObj);
 
 	const {location, temperature, description, wind, humidity, time} = weatherObj;
-
+	
 	return (	
 		<div>
 			<div className="details-div rounded">
 				<h1 className="text-white">{location}</h1>
 				<h1 className="text-white">{temperature.current}° F</h1>
 				<h3 className="text-white text-capitalize">{description}</h3>
+				{dataFetched ? <Icon id={weatherObj.icon} day={weatherObj.time.day}/> : null}
 				<h3 className="text-white">Wind: {wind.direction} {wind.speed}mph</h3>
 				<h3 className="text-white">Humidity: {humidity}%</h3>
 			</div>

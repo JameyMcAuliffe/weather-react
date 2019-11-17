@@ -31,9 +31,9 @@ const App = () => {
 	useEffect(() => {
 		if (getIdFirstDigit(condition) === 2) {
 			setConditionBackground(Storm);
-		} else if (dayTime === true && (getIdFirstDigit(condition) === 3 || getIdFirstDigit(condition)) === 5) {
+		} else if (dayTime === true && (getIdFirstDigit(condition) === 3 || getIdFirstDigit(condition) === 5)) {
 			setConditionBackground(RainyDay);
-		} else if (dayTime === false && (getIdFirstDigit(condition) === 3 || getIdFirstDigit(condition)) === 5) {
+		} else if (dayTime === false && (getIdFirstDigit(condition) === 3 || getIdFirstDigit(condition) === 5)) {
 			setConditionBackground(RainyNight);
 		}
 			else if (getIdFirstDigit(condition) === 6) {
