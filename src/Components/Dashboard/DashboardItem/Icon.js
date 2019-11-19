@@ -34,7 +34,9 @@ const Icon = ({id, day}) => {
 		{id: '11', img: StormDay, day: true},
 		{id: '11', img: StormNight, day: false},
 		{id: '13', img: SnowNight, day: false},
-		{id: '13', img: SnowDay, day: true}
+		{id: '13', img: SnowDay, day: true},
+		{id: '50', img: CloudsNight, day: false},
+		{id: '50', img: CloudsDay, day: true}
 	]
 
 	const [icon, setIcon] = useState();
@@ -49,7 +51,7 @@ const Icon = ({id, day}) => {
 	}, []);
 
 	return (
-		<img className="mt-2 mb-3" src={icon} alt=""/>
+		<img className="mt-1 mb-3" src={icon} alt=""/>
 	)
 }
 

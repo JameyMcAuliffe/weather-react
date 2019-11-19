@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 import Radar from '../../Radar/Radar';
-import Icon from './Icon';
+import CurrentDetails from './CurrentDetails/CurrentDetails';
+import OutlookForDay from './OutlookForDay/OutlookForDay';
+import HourlyForecast from './HourlyForecast/HourlyForecast';
 import './DashboardItem.css';
 
 const DashBoardItem = ({zip, getCondition}) => {	
@@ -27,6 +29,7 @@ const DashBoardItem = ({zip, getCondition}) => {
 	}
 
 	const [weatherObj, setWeatherObj] = useState(defaultWeatherObj);
+	const [hourlyArray, setHourlyArray] = useState([]);
 	const [dataFetched, setDataFetched] = useState(false);
 
 	const apiKey = process.env.REACT_APP_API_KEY;
@@ -43,13 +46,16 @@ const DashBoardItem = ({zip, getCondition}) => {
 		return directionsArray[index];
 	}
 
-	let convertUnixToTime = (u) => {
-		let date = new Date(u * 1000);
+	let convertUnixToTime = (u, timezone) => {
+		let timezoneDifference = timezone - (-18000);
+		let date = new Date((u + timezoneDifference) * 1000);
 		let hours = date.getHours();
 		let minutes = ('0' + date.getMinutes()).slice(-2);
 		
-		if (hours < 12) {
+		if (hours < 12 && hours > 0) {
 			return `${hours}:${minutes} a.m.`
+		} else if (hours === 0) {
+			return `12:${minutes} a.m.`
 		} else {
 			return `${hours - 12}:${minutes} p.m.`
 		}
@@ -63,6 +69,7 @@ const DashBoardItem = ({zip, getCondition}) => {
 		}
 	}
 
+	//Current conditions
 	useEffect(() => {
 		axios.get(apiUrl)
 			.then(({data}) => {
@@ -72,11 +79,11 @@ const DashBoardItem = ({zip, getCondition}) => {
 				let lowTemp = convertTemp(data.main.temp_min);
 				let direction = convertDegreeToDirection(data.wind.deg);
 				let dayResult = dayCheck(data.dt, data.sys.sunrise, data.sys.sunset);
-				let sunrise = convertUnixToTime(data.sys.sunrise);
-				let sunset = convertUnixToTime(data.sys.sunset);
+				let sunrise = convertUnixToTime(data.sys.sunrise, data.timezone);
+				let sunset = convertUnixToTime(data.sys.sunset, data.timezone);
 
 				setWeatherObj({
-					description: data.weather[0].main,
+					description: data.weather[0].description,
 					id: data.weather[0].id,
 					icon: data.weather[0].icon,
 					temperature: {
@@ -110,13 +117,30 @@ const DashBoardItem = ({zip, getCondition}) => {
 			// eslint-disable-next-line
 	}, [])
 
+	//future forecast
 	useEffect(() => {
 		axios.get(forecastUrl)
 			.then(({data}) => {
 				//console.log(data);
+				let tempArray = [];
+				for(let i = 0; i <= 4; i++) {
+					let item = data.list[i];
+					let time = convertUnixToTime(item.dt, data.city.timezone);
+					let avgTemp = (item.main.temp_min + item.main.temp_max) / 2;
+					let temp = convertTemp(avgTemp);
+					let itemObj = {
+						time: time,
+						temp: temp,
+						humidity: item.main.humidity,
+						description: item.weather[0].main
+					}
+					tempArray.push(itemObj);
+				}
+				setHourlyArray(tempArray);
 			})
 	}, [forecastUrl]);
 
+	//function to pass data up to App.js
 	useEffect(() => {
 		if(dataFetched) {
 			getCondition({
@@ -128,34 +152,13 @@ const DashBoardItem = ({zip, getCondition}) => {
 
 	// console.log(weatherObj);
 
-	const {location, temperature, description, wind, humidity, time} = weatherObj;
-	
+
 	return (	
 		<div>
-			<div className="details-div rounded">
-				<h1 className="text-white">{location}</h1>
-				<h1 className="text-white">{temperature.current}° F</h1>
-				<h3 className="text-white text-capitalize">{description}</h3>
-				{dataFetched ? <Icon id={weatherObj.icon} day={weatherObj.time.day}/> : null}
-				<h3 className="text-white">Wind: {wind.direction} {wind.speed}mph</h3>
-				<h3 className="text-white">Humidity: {humidity}%</h3>
-			</div>
-			<div className="details-div row justify-content-around rounded">
-				<div>
-					<h5 className="text-white"><u>High</u></h5>
-					<h5 className="text-white">{temperature.high}</h5>
-					<h5 className="text-white"><u>Sunrise</u></h5>
-					<h5 className="text-white">{time.sunrise}</h5>
-				</div>
-				<div>
-					<h5 className="text-white"><u>Low</u></h5>
-					<h5 className="text-white">{temperature.low}</h5>
-					<h5 className="text-white"><u>Sunset</u></h5>
-					<h5 className="text-white">{time.sunset}</h5>
-				</div>
-			</div>
-			{dataFetched ? <Radar day={weatherObj.time.day} coord={weatherObj.coord}/> : null}
-			
+			<CurrentDetails weatherObj={weatherObj}/>
+			<OutlookForDay weatherObj={weatherObj}/>
+			{dataFetched ? <Radar day={weatherObj.time.day} coord={weatherObj.coord}/> : null}	
+			<HourlyForecast hourlyArray={hourlyArray}/>	
 		</div>		
 	);
 }
