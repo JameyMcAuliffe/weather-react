@@ -5,73 +5,50 @@ import Radar from '../../Radar/Radar';
 import CurrentDetails from './CurrentDetails/CurrentDetails';
 import OutlookForDay from './OutlookForDay/OutlookForDay';
 import HourlyForecast from './HourlyForecast/HourlyForecast';
+import { convertTemp, convertDegreeToDirection, convertUnixToTime, dayCheck} from '../../Helper/Helper';
+import { getCoordinates } from '../../Geocode/Geocode';
 import './DashboardItem.css';
 
-const DashBoardItem = ({zip, getCondition}) => {	
-
-	const defaultWeatherObj = {
-		description: '- -',
-		temperature: {
-			current: '- -',
-			high: '- -',
-			low: '- -'
-		},
-		wind: {
-			speed: ' - - ',
-			direction: '- -'
-		},
-		location: '- -',
-		humidity: '- -',
-		time: {
-			sunrise: '- -',
-			sunset: '- -'
-		}
+const defaultWeatherObj = {
+	description: '- -',
+	temperature: {
+		current: '- -',
+		high: '- -',
+		low: '- -'
+	},
+	wind: {
+		speed: ' - - ',
+		direction: '- -'
+	},
+	location: '- -',
+	humidity: '- -',
+	time: {
+		sunrise: '- -',
+		sunset: '- -'
 	}
+}
+
+const apiKey = process.env.REACT_APP_API_KEY;
+
+const DashBoardItem = ({zip, getCondition, location}) => {	
 
 	const [weatherObj, setWeatherObj] = useState(defaultWeatherObj);
 	const [hourlyArray, setHourlyArray] = useState([]);
-	const [dataFetched, setDataFetched] = useState(false);
+	//const [location, setLocation] = useState(null);
+	const [dataFetched, setDataFetched] = useState(false);	
+	
+	const apiUrlCoord = `https://api.openweathermap.org/data/2.5/weather?lat=${zip.latitude}&lon=${zip.longitude}&appid=${apiKey}`;
+	const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${zip.latitude}&lon=${zip.longitude}&appid=${apiKey}`;
 
-	const apiKey = process.env.REACT_APP_API_KEY;
-	const apiUrl = `https://api.openweathermap.org/data/2.5/weather?zip=${zip}&appid=${apiKey}`;
-	const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?zip=${zip}&appid=${apiKey}`;
-
-	let convertTemp = (k) => {
-		return ((k - 273.15) * 9/5 + 32).toFixed(0);
-	}
-
-	let convertDegreeToDirection = (deg) => {
-		let directionsArray = ["N","NNE","NE","ENE","E","ESE", "SE", "SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
-		let index = parseInt((deg / 22.5) + .5);
-		return directionsArray[index];
-	}
-
-	let convertUnixToTime = (u, timezone) => {
-		let timezoneDifference = timezone - (-18000);
-		let date = new Date((u + timezoneDifference) * 1000);
-		let hours = date.getHours();
-		let minutes = ('0' + date.getMinutes()).slice(-2);
-		
-		if (hours < 12 && hours > 0) {
-			return `${hours}:${minutes} a.m.`
-		} else if (hours === 0) {
-			return `12:${minutes} a.m.`
-		} else {
-			return `${hours - 12}:${minutes} p.m.`
+	useEffect(() => {
+		if(location !== null) {
+			getCoordinates(location);
 		}
-	}
-
-	let dayCheck = (current, sunrise, sunset) => {
-		if (current > sunrise && current < sunset) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+	},[location]);
 
 	//Current conditions
 	useEffect(() => {
-		axios.get(apiUrl)
+		axios.get(apiUrlCoord)
 			.then(({data}) => {
 			  //console.log(data);
 				let currentTemp = convertTemp(data.main.temp);
@@ -117,6 +94,7 @@ const DashBoardItem = ({zip, getCondition}) => {
 			// eslint-disable-next-line
 	}, [])
 
+
 	//future forecast
 	useEffect(() => {
 		axios.get(forecastUrl)
@@ -150,7 +128,7 @@ const DashBoardItem = ({zip, getCondition}) => {
 		}
 	}, [weatherObj.id, weatherObj.time.day, dataFetched, getCondition]);
 
-	// console.log(weatherObj);
+	//console.log(weatherObj);
 
 
 	return (	
@@ -164,3 +142,17 @@ const DashBoardItem = ({zip, getCondition}) => {
 }
 
 export default DashBoardItem;
+
+//useEffect(() => {
+		//navigator.geolocation.getCurrentPosition(function(position) {
+		  // let coordinatesObj = {
+		  // 	lat: position.latitude,
+		  // 	lon: position.longitude
+		  // }  
+		//});
+
+		// const apiUrl = `https://api.openweathermap.org/data/2.5/weather?zip=${zip}&appid=${apiKey}`;
+
+		// const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?zip=${zip}&appid=${apiKey}`;
+
+
