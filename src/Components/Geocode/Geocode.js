@@ -1,6 +1,6 @@
 import Geocode from "react-geocode";
 
-Geocode.setApiKey('AIzaSyAgiCgzbfrwYUIBdTh4gnE8Lrie5tFuT8E');
+Geocode.setApiKey(process.env.REACT_APP_GOOGLE_API_KEY);
 
 export const getCoordinates = (input) => {
 	Geocode.fromAddress(input).then(coord => {
