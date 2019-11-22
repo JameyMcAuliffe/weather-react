@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 import Dashboard from './Components/Dashboard/Dashboard';
+import Nav from './Components/Nav/Nav';
+import Search from './Components/Search/Search';
 import ClearNight from './images/clear_night_2.jpg';
 import ClearDay from './images/clear_2.jpg';
 import CloudyDay from './images/cloudy.jpeg';
@@ -9,6 +11,7 @@ import Storm from './images/storm.jpeg';
 import RainyDay from './images/rainy_day.jpg';
 import RainyNight from './images/rainy_night.jpg';
 import Snow from './images/snow.jpg';
+import { getIdFirstDigit } from './Components/Helper/Helper';
 
 import './App.css';
 
@@ -18,14 +21,15 @@ const App = () => {
 	const [condition, setCondition] = useState();
 	const [dayTime, setDayTime] = useState(true);
 	const [conditionBackground, setConditionBackground] = useState(ClearDay);
+	const [searchedValue, setSearchedValue] = useState(null);
 
 	let getCondition = ({id, day}) => {
 		setCondition(id);
 		setDayTime(day);
 	}
 
-	let getIdFirstDigit = (id) => {
-		return parseInt(id / 100);
+	let getSearchedLocation = (input) => {
+		setSearchedValue(input);
 	}
 
 	useEffect(() => {
@@ -50,8 +54,6 @@ const App = () => {
 		}
 	}, [condition, dayTime])
 
-	//console.log('cond: ', condition);
-
 	const background = {
 		backgroundImage: `url(${conditionBackground})`,
 		paddingTop: '50px',
@@ -64,7 +66,9 @@ const App = () => {
 
   return (
     <div className="App" style={background}>
-      <Dashboard getCondition={getCondition}/>
+    	<Nav />
+    	<Search passUpValue={getSearchedLocation}/>
+      <Dashboard getCondition={getCondition} location={searchedValue}/>
     </div>
   );
 }

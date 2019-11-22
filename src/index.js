@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.css';
+import "mdbreact/dist/css/mdb.css";
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 import './index.css';

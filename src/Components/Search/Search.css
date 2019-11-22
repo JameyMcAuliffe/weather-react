@@ -1,0 +1,14 @@
+.search-input {
+	width: 70%;
+	margin: auto;
+	/*background-color: rgba(43, 46, 51, .6);*/
+	border: 1px solid rgb(43,46,51);
+}
+
+.search-btn {
+	background-color: rgba(43, 46, 51, .6);
+}
+
+.search-div {
+	margin-top: 40px;
+}

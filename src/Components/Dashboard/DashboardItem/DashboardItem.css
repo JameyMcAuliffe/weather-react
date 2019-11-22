@@ -1,10 +1,19 @@
 .details-div {
-	background-color: rgba(43, 46, 51, .7);
+	background-color: rgba(43, 46, 51, .6);
 	margin: auto;
 	margin-top: 50px;
 	padding-bottom: 15px;
 	padding-top: 15px;
 	width: 80%;
+}
+
+.hourly-details-div {
+	background-color: rgba(43, 46, 51, .6);
+	margin: auto;
+	margin-top: 50px;
+	padding-bottom: 15px;
+	padding-top: 15px;
+	width: 90%;
 }
 
 .hour-detail {
@@ -18,4 +27,8 @@
 
 .hour-item {
 	margin: 10px 0px;
+}
+
+.hour-item-labels {
+	border-bottom: 1px solid gray;
 }
