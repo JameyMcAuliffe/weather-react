@@ -11,6 +11,7 @@ import Storm from './images/storm.jpeg';
 import RainyDay from './images/rainy_day.jpg';
 import RainyNight from './images/rainy_night.jpg';
 import Snow from './images/snow.jpg';
+import MistyNight from './images/misty_night.jpg';
 import { getIdFirstDigit } from './Components/Helper/Helper';
 
 import './App.css';
@@ -33,7 +34,7 @@ const App = () => {
 	}
 
 	useEffect(() => {
-		if (getIdFirstDigit(condition) === 2) {
+		if (getIdFirstDigit(condition) === 2 || condition === 771 || condition === 781) {
 			setConditionBackground(Storm);
 		} else if (dayTime === true && (getIdFirstDigit(condition) === 3 || getIdFirstDigit(condition) === 5)) {
 			setConditionBackground(RainyDay);
@@ -42,7 +43,10 @@ const App = () => {
 		}
 			else if (getIdFirstDigit(condition) === 6) {
 			setConditionBackground(Snow);
-		} else if (dayTime === true && getIdFirstDigit(condition) === 8 && condition !== 800) {
+		} else if (dayTime === false && getIdFirstDigit(condition) === 7 && condition < 771) {
+			setConditionBackground(MistyNight);
+		}
+			else if (dayTime === true && getIdFirstDigit(condition) === 8 && condition !== 800) {
 			setConditionBackground(CloudyDay);
 		} else if (dayTime === false && getIdFirstDigit(condition) === 8 && condition !== 800) {
 			setConditionBackground(CloudyNight);

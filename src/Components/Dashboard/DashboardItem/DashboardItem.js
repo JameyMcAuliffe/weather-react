@@ -30,19 +30,29 @@ const defaultWeatherObj = {
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
-const DashBoardItem = ({zip, getCondition, location}) => {	
+const DashBoardItem = ({getCondition, location}) => {	
 
 	const [weatherObj, setWeatherObj] = useState(defaultWeatherObj);
 	const [hourlyArray, setHourlyArray] = useState([]);
-	//const [location, setLocation] = useState(null);
-	const [dataFetched, setDataFetched] = useState(false);	
+	const [searchedCoords, setSearchedCoords] = useState(null);
+	const [dataFetched, setDataFetched] = useState(false);
+
+	let coordObject = searchedCoords === null ? 
+		{latitude: 35.71, longitude: -82.63} :
+		{latitude: searchedCoords.lat, longitude: searchedCoords.lng};
 	
-	const apiUrlCoord = `https://api.openweathermap.org/data/2.5/weather?lat=${zip.latitude}&lon=${zip.longitude}&appid=${apiKey}`;
-	const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${zip.latitude}&lon=${zip.longitude}&appid=${apiKey}`;
+	const apiUrlCoord = `https://api.openweathermap.org/data/2.5/weather?lat=${coordObject.latitude}&lon=${coordObject.longitude}&appid=${apiKey}`;
+	const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${coordObject.latitude}&lon=${coordObject.longitude}&appid=${apiKey}`;
 
 	useEffect(() => {
 		if(location !== null) {
-			getCoordinates(location);
+			getCoordinates(location)
+				.then(coords => {
+					setSearchedCoords(coords);
+				},
+				error => {
+					console.log(error);
+				});
 		}
 	},[location]);
 
@@ -91,8 +101,7 @@ const DashBoardItem = ({zip, getCondition, location}) => {
 			.catch(err => {
 				return err
 			});
-			// eslint-disable-next-line
-	}, [])
+	}, [apiUrlCoord])
 
 
 	//future forecast

@@ -16,6 +16,8 @@ const Search = ({passUpValue}) => {
 		e.preventDefault();
 	}
 
+	let disabled = searchedInput.trim('') === '' ? true : false;
+
 	return (
 		<form onSubmit={formSubmit}>
 			<div className="search-div">
@@ -25,8 +27,8 @@ const Search = ({passUpValue}) => {
 					type="text"
 					placeholder="Enter a zip, city, or location..."
 					className="form-control search-input"/>
-				<button className="btn text-white search-btn">
-					Get weather
+				<button className="btn text-white search-btn" disabled={disabled}>
+					Show Me
 				</button>
 			</div>
 

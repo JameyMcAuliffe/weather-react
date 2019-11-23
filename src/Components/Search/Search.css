@@ -6,7 +6,8 @@
 }
 
 .search-btn {
-	background-color: rgba(43, 46, 51, .6);
+	background-color: rgba(43, 46, 51, .8);
+	border: 1px solid black;
 }
 
 .search-div {
