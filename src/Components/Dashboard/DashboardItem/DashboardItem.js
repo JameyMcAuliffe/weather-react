@@ -37,6 +37,8 @@ const DashBoardItem = ({getCondition, location}) => {
 	const [searchedCoords, setSearchedCoords] = useState(null);
 	const [dataFetched, setDataFetched] = useState(false);
 
+	//async/await function that finds user's location, setting value as default of coordObject with useState
+
 	let coordObject = searchedCoords === null ? 
 		{latitude: 35.71, longitude: -82.63} :
 		{latitude: searchedCoords.lat, longitude: searchedCoords.lng};
@@ -50,8 +52,8 @@ const DashBoardItem = ({getCondition, location}) => {
 				.then(coords => {
 					setSearchedCoords(coords);
 				},
-				error => {
-					console.log(error);
+				err => {
+					return err;
 				});
 		}
 	},[location]);
@@ -99,7 +101,7 @@ const DashBoardItem = ({getCondition, location}) => {
 				setDataFetched(true);
 			})
 			.catch(err => {
-				return err
+				return err;
 			});
 	}, [apiUrlCoord])
 
@@ -124,7 +126,10 @@ const DashBoardItem = ({getCondition, location}) => {
 					tempArray.push(itemObj);
 				}
 				setHourlyArray(tempArray);
-			})
+			},
+			err => {
+				return err;
+			});
 	}, [forecastUrl]);
 
 	//function to pass data up to App.js

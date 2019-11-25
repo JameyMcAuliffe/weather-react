@@ -15,7 +15,10 @@
 			return `${hours}:${minutes} a.m.`
 		} else if (hours === 0) {
 			return `12:${minutes} a.m.`
-		} else {
+		} else if (hours === 12) {
+			return (`12:${minutes} p.m.`)
+		}
+		else {
 			return `${hours - 12}:${minutes} p.m.`
 		}
 	}

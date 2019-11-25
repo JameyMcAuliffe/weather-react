@@ -27,11 +27,23 @@ class Radar extends Component {
 
     map.on('load', () => {
     	map.addLayer({
-		    "id": "simple-tiles",
+		    "id": "rain-tiles",
 		    "type": "raster",
 		    "source": {
 		      "type": "raster",
 		      "tiles": [`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${apiKey}`],
+		      "tileSize": 256
+		    },
+		    "minzoom": 0,
+		    "maxzoom": 10
+		  });
+
+		 	map.addLayer({
+		    "id": "snow-tiles",
+		    "type": "raster",
+		    "source": {
+		      "type": "raster",
+		      "tiles": [`https://tile.openweathermap.org/map/snow_new/{z}/{x}/{y}.png?appid=${apiKey}`],
 		      "tileSize": 256
 		    },
 		    "minzoom": 0,
