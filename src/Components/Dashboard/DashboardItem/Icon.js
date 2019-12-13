@@ -17,7 +17,7 @@ import SnowNight from '../../../images/icons/snow_night.png'
 import StormNight from '../../../images/icons/storm_night.png'
 import StormDay from '../../../images/icons/storm_day.png'
 
-const Icon = ({id, day}) => {
+const Icon = ({id}) => {
 
 	const iconsArray = [
 		{id: '01d', img: ClearDayIcon},
