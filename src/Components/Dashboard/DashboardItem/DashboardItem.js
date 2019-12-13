@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 import Radar from '../../Radar/Radar';
+import Loading from './Loading/Loading';
 import CurrentDetails from './CurrentDetails/CurrentDetails';
 import OutlookForDay from './OutlookForDay/OutlookForDay';
 import HourlyForecast from './HourlyForecast/HourlyForecast';
@@ -30,39 +31,51 @@ const defaultWeatherObj = {
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
-const DashBoardItem = ({getCondition, location}) => {	
+const DashBoardItem = ({getCondition, searchedValue}) => {	
 
 	const [weatherObj, setWeatherObj] = useState(defaultWeatherObj);
 	const [hourlyArray, setHourlyArray] = useState([]);
-	const [searchedCoords, setSearchedCoords] = useState(null);
+	const [coords, setCoords] = useState(null);
 	const [dataFetched, setDataFetched] = useState(false);
-
-	//async/await function that finds user's location, setting value as default of coordObject with useState
-
-	let coordObject = searchedCoords === null ? 
-		{latitude: 35.71, longitude: -82.63} :
-		{latitude: searchedCoords.lat, longitude: searchedCoords.lng};
+	const [locationFound, setLocationFound] = useState(false);
 	
-	const apiUrlCoord = `https://api.openweathermap.org/data/2.5/weather?lat=${coordObject.latitude}&lon=${coordObject.longitude}&appid=${apiKey}`;
-	const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${coordObject.latitude}&lon=${coordObject.longitude}&appid=${apiKey}`;
+	const apiUrlCoord = locationFound ? `https://api.openweathermap.org/data/2.5/weather?lat=${coords.latitude}&lon=${coords.longitude}&appid=${apiKey}` : null;
+	const forecastUrl = locationFound ? `https://api.openweathermap.org/data/2.5/forecast?lat=${coords.latitude}&lon=${coords.longitude}&appid=${apiKey}` : null;
 
 	useEffect(() => {
-		if(location !== null) {
-			getCoordinates(location)
-				.then(coords => {
-					setSearchedCoords(coords);
+		navigator.geolocation.getCurrentPosition(function(position) {
+		  let coordinatesObj = {
+		  	latitude: position.coords.latitude,
+		  	longitude: position.coords.longitude
+		  }
+
+		  setCoords(coordinatesObj);
+		  setLocationFound(true);
+		});
+	}, []);
+
+	useEffect(() => {
+		if(searchedValue !== null) {
+			//function available from Geocode
+			getCoordinates(searchedValue)
+				.then(coordsObj => {
+					let newCoordsObject = {
+						longitude: coordsObj.lng,
+						latitude: coordsObj.lat
+					}
+					setCoords(newCoordsObject);
 				},
 				err => {
 					return err;
 				});
 		}
-	},[location]);
+	},[searchedValue]);
 
 	//Current conditions
 	useEffect(() => {
-		axios.get(apiUrlCoord)
+		if(locationFound) {
+			axios.get(apiUrlCoord)
 			.then(({data}) => {
-			  //console.log(data);
 				let currentTemp = convertTemp(data.main.temp);
 				let highTemp = convertTemp(data.main.temp_max);
 				let lowTemp = convertTemp(data.main.temp_min);
@@ -70,6 +83,7 @@ const DashBoardItem = ({getCondition, location}) => {
 				let dayResult = dayCheck(data.dt, data.sys.sunrise, data.sys.sunset);
 				let sunrise = convertUnixToTime(data.sys.sunrise, data.timezone);
 				let sunset = convertUnixToTime(data.sys.sunset, data.timezone);
+				let currentTime = convertUnixToTime(data.dt, data.timezone);
 
 				setWeatherObj({
 					description: data.weather[0].description,
@@ -91,7 +105,7 @@ const DashBoardItem = ({getCondition, location}) => {
 						lat: data.coord.lat
 					},
 					time: {
-						current: data.dt,
+						current: currentTime,
 						sunrise: sunrise,
 						sunset: sunset,
 						day: dayResult
@@ -103,7 +117,9 @@ const DashBoardItem = ({getCondition, location}) => {
 			.catch(err => {
 				return err;
 			});
-	}, [apiUrlCoord])
+		}
+		
+	}, [apiUrlCoord, locationFound]);
 
 
 	//future forecast
@@ -142,31 +158,21 @@ const DashBoardItem = ({getCondition, location}) => {
 		}
 	}, [weatherObj.id, weatherObj.time.day, dataFetched, getCondition]);
 
-	//console.log(weatherObj);
-
 
 	return (	
-		<div>
-			<CurrentDetails weatherObj={weatherObj}/>
-			<OutlookForDay weatherObj={weatherObj}/>
-			{dataFetched ? <Radar day={weatherObj.time.day} coord={weatherObj.coord}/> : null}	
-			<HourlyForecast hourlyArray={hourlyArray}/>	
+		<div>	
+			{dataFetched ?
+				<div> 
+					<CurrentDetails weatherObj={weatherObj}/>
+					<OutlookForDay weatherObj={weatherObj}/>
+					<Radar day={weatherObj.time.day} coord={weatherObj.coord}/> 
+					<HourlyForecast hourlyArray={hourlyArray}/>
+				</div>
+				: <Loading message="Finding location..."/>}		
 		</div>		
 	);
 }
 
 export default DashBoardItem;
-
-//useEffect(() => {
-		//navigator.geolocation.getCurrentPosition(function(position) {
-		  // let coordinatesObj = {
-		  // 	lat: position.latitude,
-		  // 	lon: position.longitude
-		  // }  
-		//});
-
-		// const apiUrl = `https://api.openweathermap.org/data/2.5/weather?zip=${zip}&appid=${apiKey}`;
-
-		// const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?zip=${zip}&appid=${apiKey}`;
 
 

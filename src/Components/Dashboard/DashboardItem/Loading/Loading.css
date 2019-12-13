@@ -1,0 +1,15 @@
+.spinner {
+	margin: auto;
+	margin-bottom: 20px;
+	margin-top: 20px;
+}
+
+.loading-div {
+	background-color: rgba(43, 46, 51, .6);
+	margin: auto;
+	margin-top: 50px;
+	padding-bottom: 15px;
+	padding-top: 15px;
+	width: 80%;
+	margin-bottom: 200px;
+}

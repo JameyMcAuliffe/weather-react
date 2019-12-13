@@ -26,6 +26,7 @@ const App = () => {
 		setSearchedValue(input);
 	}
 
+	//clean this up
 	useEffect(() => {
 		if (getIdFirstDigit(condition) === 2 || condition === 771 || condition === 781) {
 			setConditionBackground(Storm);
@@ -68,7 +69,7 @@ const App = () => {
     <div className="App" style={background}>
     	<Nav />
     	<Search passUpValue={getSearchedLocation}/>
-      <Dashboard getCondition={getCondition} location={searchedValue}/>
+      <Dashboard getCondition={getCondition} searchedValue={searchedValue}/>
     </div>
   );
 }
