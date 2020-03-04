@@ -52,7 +52,7 @@ const Icon = ({id}) => {
 	}, [iconsArray, id]);
 
 	return (
-		<img className="mt-1 mb-3" src={icon} alt=""/>
+		<img className="mt-1 mb-3" src={icon} alt="weather_icon"/>
 	)
 }
 
