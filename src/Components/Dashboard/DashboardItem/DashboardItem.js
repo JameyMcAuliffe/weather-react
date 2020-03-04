@@ -1,33 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getCoordinates } from '../../Geocode/Geocode';
 
 import Radar from '../../Radar/Radar';
+import DefaultDashboard from '../DefaultDashboard/DefaultDashboard';
 import Loading from './Loading/Loading';
 import CurrentDetails from './CurrentDetails/CurrentDetails';
 import OutlookForDay from './OutlookForDay/OutlookForDay';
 import HourlyForecast from './HourlyForecast/HourlyForecast';
-import { convertTemp, convertDegreeToDirection, convertUnixToTime, dayCheck} from '../../Helper/Helper';
-import { getCoordinates } from '../../Geocode/Geocode';
-import './DashboardItem.css';
+import { convertDegreeToDirection, convertUnixToTime, dayCheck, defaultWeatherObj} from '../../Helper/Helper';
 
-const defaultWeatherObj = {
-	description: '- -',
-	temperature: {
-		current: '- -',
-		high: '- -',
-		low: '- -'
-	},
-	wind: {
-		speed: ' - - ',
-		direction: '- -'
-	},
-	location: '- -',
-	humidity: '- -',
-	time: {
-		sunrise: '- -',
-		sunset: '- -'
-	}
-}
+import './DashboardItem.css';
 
 const apiKey = process.env.REACT_APP_API_KEY;
 
@@ -35,24 +18,12 @@ const DashBoardItem = ({getCondition, searchedValue}) => {
 
 	const [weatherObj, setWeatherObj] = useState(defaultWeatherObj);
 	const [hourlyArray, setHourlyArray] = useState([]);
-	const [coords, setCoords] = useState(null);
+	const [coords, setCoords] = useState({latitude: 35.71, longitude: -82.63});
 	const [dataFetched, setDataFetched] = useState(false);
-	const [locationFound, setLocationFound] = useState(false);
+	const [showDefault, setShowDefault] = useState(true);
 	
-	const apiUrlCoord = locationFound ? `https://api.openweathermap.org/data/2.5/weather?lat=${coords.latitude}&lon=${coords.longitude}&appid=${apiKey}` : null;
-	const forecastUrl = locationFound ? `https://api.openweathermap.org/data/2.5/forecast?lat=${coords.latitude}&lon=${coords.longitude}&appid=${apiKey}` : null;
-
-	useEffect(() => {
-		navigator.geolocation.getCurrentPosition(function(position) {
-		  let coordinatesObj = {
-		  	latitude: position.coords.latitude,
-		  	longitude: position.coords.longitude
-		  }
-
-		  setCoords(coordinatesObj);
-		  setLocationFound(true);
-		});
-	}, []);
+	const apiUrlCoord = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.latitude}&lon=${coords.longitude}&units=imperial&appid=${apiKey}`;
+	const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${coords.latitude}&lon=${coords.longitude}&units=imperial&appid=${apiKey}`;
 
 	useEffect(() => {
 		if(searchedValue !== null) {
@@ -64,6 +35,7 @@ const DashBoardItem = ({getCondition, searchedValue}) => {
 						latitude: coordsObj.lat
 					}
 					setCoords(newCoordsObject);
+					setShowDefault(false);
 				},
 				err => {
 					return err;
@@ -73,69 +45,61 @@ const DashBoardItem = ({getCondition, searchedValue}) => {
 
 	//Current conditions
 	useEffect(() => {
-		if(locationFound) {
-			axios.get(apiUrlCoord)
-			.then(({data}) => {
-				let currentTemp = convertTemp(data.main.temp);
-				let highTemp = convertTemp(data.main.temp_max);
-				let lowTemp = convertTemp(data.main.temp_min);
-				let direction = convertDegreeToDirection(data.wind.deg);
-				let dayResult = dayCheck(data.dt, data.sys.sunrise, data.sys.sunset);
-				let sunrise = convertUnixToTime(data.sys.sunrise, data.timezone);
-				let sunset = convertUnixToTime(data.sys.sunset, data.timezone);
-				let currentTime = convertUnixToTime(data.dt, data.timezone);
+		axios.get(apiUrlCoord)
+		.then(({data}) => {
+			let direction = convertDegreeToDirection(data.wind.deg);
+			let dayResult = dayCheck(data.dt, data.sys.sunrise, data.sys.sunset);
+			let sunrise = convertUnixToTime(data.sys.sunrise, data.timezone);
+			let sunset = convertUnixToTime(data.sys.sunset, data.timezone);
+			let currentTime = convertUnixToTime(data.dt, data.timezone);
 
-				setWeatherObj({
-					description: data.weather[0].description,
-					id: data.weather[0].id,
-					icon: data.weather[0].icon,
-					temperature: {
-						current: currentTemp,
-						high: highTemp,
-						low: lowTemp
-					},
-					wind: {
-						speed: data.wind.speed.toFixed(0),
-						direction: direction
-					},
-					location: data.name,
-					humidity: data.main.humidity,
-					coord: {
-						lon: data.coord.lon,
-						lat: data.coord.lat
-					},
-					time: {
-						current: currentTime,
-						sunrise: sunrise,
-						sunset: sunset,
-						day: dayResult
-					}
-				});
-
-				setDataFetched(true);
-			})
-			.catch(err => {
-				return err;
+			setWeatherObj({
+				description: data.weather[0].description,
+				id: data.weather[0].id,
+				icon: data.weather[0].icon,
+				temperature: {
+					current: data.main.temp.toFixed(0),
+					high: data.main.temp_max.toFixed(0),
+					low: data.main.temp_min.toFixed(0)
+				},
+				wind: {
+					speed: data.wind.speed.toFixed(0),
+					direction: direction
+				},
+				location: data.name,
+				humidity: data.main.humidity,
+				coord: {
+					lon: data.coord.lon,
+					lat: data.coord.lat
+				},
+				time: {
+					current: currentTime,
+					sunrise: sunrise,
+					sunset: sunset,
+					day: dayResult
+				}
 			});
-		}
-		
-	}, [apiUrlCoord, locationFound]);
+
+			setDataFetched(true);
+		})
+		.catch(err => {
+			return err;
+		});
+	}, [apiUrlCoord]);
 
 
 	//future forecast
 	useEffect(() => {
 		axios.get(forecastUrl)
 			.then(({data}) => {
-				//console.log(data);
 				let tempArray = [];
 				for(let i = 0; i <= 4; i++) {
 					let item = data.list[i];
 					let time = convertUnixToTime(item.dt, data.city.timezone);
 					let avgTemp = (item.main.temp_min + item.main.temp_max) / 2;
-					let temp = convertTemp(avgTemp);
 					let itemObj = {
 						time: time,
-						temp: temp,
+						temp: avgTemp.toFixed(0),
 						humidity: item.main.humidity,
 						description: item.weather[0].main
 					}
@@ -155,24 +119,29 @@ const DashBoardItem = ({getCondition, searchedValue}) => {
 				id: weatherObj.id,
 				day: weatherObj.time.day
 			});
-		}
+		} 
 	}, [weatherObj.id, weatherObj.time.day, dataFetched, getCondition]);
+
+	 
+	const renderedDashboard = showDefault ? 
+		<div>
+			<DefaultDashboard />
+		</div> 
+		: dataFetched ? 
+			<div> 	
+				<CurrentDetails weatherObj={weatherObj}/>
+				<OutlookForDay weatherObj={weatherObj}/>
+				<Radar day={weatherObj.time.day} coord={weatherObj.coord} zoom="6"/> 
+				<HourlyForecast hourlyArray={hourlyArray}/>
+			</div>
+				: <Loading message="Finding location..."/>
 
 
 	return (	
-		<div>	
-			{dataFetched ?
-				<div> 
-					<CurrentDetails weatherObj={weatherObj}/>
-					<OutlookForDay weatherObj={weatherObj}/>
-					<Radar day={weatherObj.time.day} coord={weatherObj.coord}/> 
-					<HourlyForecast hourlyArray={hourlyArray}/>
-				</div>
-				: <Loading message="Finding location..."/>}		
+		<div>
+			{renderedDashboard}	
 		</div>		
 	);
 }
 
 export default DashBoardItem;
-
-

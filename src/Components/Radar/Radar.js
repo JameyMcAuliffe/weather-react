@@ -16,7 +16,7 @@ class Radar extends Component {
 	  let map = new mapboxgl.Map({
       container: this.container,
       style: `mapbox://styles/mapbox/navigation-guidance-${mapMode}-v4`,
-	    zoom: 6,
+	    zoom: this.props.zoom,
 	    center: [lon, lat],
 	    scrollZoom: false,
 	    touchZoomRotate: false   

@@ -28,7 +28,7 @@ const Search = ({passUpValue}) => {
 					placeholder="Enter a zip, city, or location..."
 					className="form-control search-input"/>
 				<button className="btn text-white search-btn" disabled={disabled}>
-					Show Me
+					Get Weather
 				</button>
 			</div>
 
